@@ -7,6 +7,7 @@ import (
 	"github.com/travisjeffery/jocko"
 	"github.com/travisjeffery/jocko/log"
 	"github.com/travisjeffery/jocko/protocol"
+	"fmt"
 )
 
 const (
@@ -32,6 +33,7 @@ func (b *Broker) raftApply(cmd jocko.RaftCmdType, data interface{}) error {
 
 // handleRaftCommands reads commands sent into the given channel to apply them.
 func (b *Broker) handleRaftCommmands(commandCh <-chan jocko.RaftCommand) {
+	fmt.Println("-----------Handling raft commands-------------");
 	for {
 		select {
 		case cmd := <-commandCh:
@@ -44,6 +46,7 @@ func (b *Broker) handleRaftCommmands(commandCh <-chan jocko.RaftCommand) {
 
 // apply applies the given command on this broker.
 func (b *Broker) apply(c jocko.RaftCommand) {
+	fmt.Println("-----------Applying raft commands-------------");
 	defer func() {
 		if r := recover(); r != nil {
 			b.logger.Info("error while applying raft command", log.Any("recovered", r))
@@ -56,6 +59,7 @@ func (b *Broker) apply(c jocko.RaftCommand) {
 	case nop:
 		return
 	case createPartition:
+		fmt.Println("-----------Creating partitions-------------");
 		p := new(jocko.Partition)
 		if err := unmarshalData(c.Data, p); err != nil {
 			b.logger.Error("received malformed raft command", log.Error("error", err))
@@ -66,6 +70,7 @@ func (b *Broker) apply(c jocko.RaftCommand) {
 			panic(err)
 		}
 	case deleteTopic:
+		fmt.Println("-----------Deleting partitions-------------");
 		p := new(jocko.Partition)
 		if err := unmarshalData(c.Data, p); err != nil {
 			b.logger.Error("received malformed raft command", log.Error("error", err))

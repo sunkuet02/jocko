@@ -18,6 +18,7 @@ import (
 	"github.com/travisjeffery/jocko/log"
 	"github.com/travisjeffery/jocko/protocol"
 	"github.com/travisjeffery/jocko/server"
+	"fmt"
 )
 
 var (
@@ -52,6 +53,7 @@ type Broker struct {
 
 // New is used to instantiate a new broker.
 func New(config Config, serf jocko.Serf, raft jocko.Raft, logger log.Logger) (*Broker, error) {
+	fmt.Println("-----------Initializing Broker-------------");
 	b := &Broker{
 		config:      config,
 		logger:      logger.With(log.Any("config", config)),
@@ -513,6 +515,7 @@ func (b *Broker) clusterMember(id int32) *jocko.ClusterMember {
 
 // startReplica is used to start a replica on this, including creating its commit log.
 func (b *Broker) startReplica(partition *jocko.Partition) protocol.Error {
+	fmt.Println("-----------Starting replica- ", partition.Replicas, "-----------");
 	b.Lock()
 	defer b.Unlock()
 	if v, ok := b.topicMap[partition.Topic]; ok {

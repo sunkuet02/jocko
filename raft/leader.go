@@ -11,6 +11,7 @@ import (
 // monitorLeadership is used to monitor if we acquire or lose our role as the
 // leader in the Raft cluster.
 func (b *Raft) monitorLeadership(notifyCh <-chan bool, serfEventCh <-chan *jocko.ClusterMember) {
+	fmt.Println("-----------Monitoring leaders raft-------------");
 	var stopCh chan struct{}
 	for {
 		select {

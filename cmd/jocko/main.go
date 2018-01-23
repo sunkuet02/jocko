@@ -31,12 +31,15 @@ var (
 )
 
 func main() {
+	fmt.Println("Entering in main method --- 1")
 	cmd := kingpin.MustParse(cli.Parse(os.Args[1:]))
 
 	switch cmd {
 	case brokerCmd.FullCommand():
+		fmt.Println("Executing broker command --- 2")
 		os.Exit(cmdBrokers())
 	case createTopicCmd.FullCommand():
+		fmt.Println("Executing create topic command --- 3")
 		os.Exit(cmdCreateTopic())
 	}
 }
@@ -51,6 +54,7 @@ type config struct {
 }
 
 func newBrokerOptions(cmd *kingpin.CmdClause) config {
+	fmt.Println("New Broker Options -- ")
 	conf := &config{RaftConfig: &raft.Config{}, SerfConfig: &serf.Config{}, ServerConfig: &server.Config{}, BrokerConfig: &broker.Config{}}
 	brokerCmd.Flag("raft-addr", "Address for Raft to bind and advertise on").Default("127.0.0.1:9093").StringVar(&conf.RaftConfig.Addr)
 	brokerCmd.Flag("data-dir", "A comma separated list of directories under which to store log files").Default("/tmp/jocko").StringVar(&conf.DataDir)
@@ -80,6 +84,8 @@ func newCreateTopicFlags(cmd *kingpin.CmdClause) createTopicOptions {
 }
 
 func cmdBrokers() int {
+
+	fmt.Println("----- In Cmd Brokers Method-----------")
 	var err error
 	logger := log.New().With(
 		log.Int32("id", brokerCmdConfig.ID),
@@ -94,6 +100,7 @@ func cmdBrokers() int {
 		fmt.Fprintf(os.Stderr, "error starting serf: %v\n", err)
 		os.Exit(1)
 	}
+	fmt.Println("---- Created serf -------")
 
 	raft, err := raft.New(*brokerCmdConfig.RaftConfig, serf, logger)
 	if err != nil {
@@ -101,17 +108,23 @@ func cmdBrokers() int {
 		os.Exit(1)
 	}
 
+	fmt.Println("---- Created raft -------")
+
 	broker, err := broker.New(*brokerCmdConfig.BrokerConfig, serf, raft, logger)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error starting broker: %v\n", err)
 		os.Exit(1)
 	}
 
+	fmt.Println("---- Created Broker -------")
+
 	srv := server.New(*brokerCmdConfig.ServerConfig, broker, nil, logger)
 	if err := srv.Start(context.Background()); err != nil {
 		fmt.Fprintf(os.Stderr, "error starting server: %v\n", err)
 		os.Exit(1)
 	}
+
+	fmt.Println("---- Created Server -------")
 
 	defer srv.Close()
 

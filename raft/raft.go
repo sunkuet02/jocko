@@ -45,6 +45,7 @@ type Raft struct {
 
 // New Raft object
 func New(config Config, serf jocko.Serf, logger log.Logger) (*Raft, error) {
+	fmt.Println("-----------Initializing raft-------------");
 	r := &Raft{
 		config:     config,
 		serf:       serf,
@@ -60,6 +61,7 @@ func New(config Config, serf jocko.Serf, logger log.Logger) (*Raft, error) {
 }
 
 func (r *Raft) setupRaft() error {
+	fmt.Println("-----------Starting raft-------------");
 	var err error
 
 	r.raftConfig.LocalID = raft.ServerID(r.config.Addr)
